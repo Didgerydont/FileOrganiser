@@ -7,19 +7,23 @@ public class FileIO {
     public void organiseFiles(String directoryPath){
         File folder = new File(directoryPath);
         File[] listOfFiles = folder.listFiles();
+        String parentFolderName = folder.getName(); // Get the parent folder's name
 
         System.out.println("Organising directory: " + directoryPath); // Print the directory being organised
 
         if(listOfFiles != null){
             Map<String, File> directories = new HashMap<>();
-            for(File file: listOfFiles){
+            for(File file : listOfFiles){
                 if(file.isFile()){
                     String ext = getFileExtension(file);
-                    directories.putIfAbsent(ext, new File(folder + File.separator + ext));
+                    // Change directory naming to include parent folder name and extension
+                    String newDirName = parentFolderName + "_" + ext;
+
+                    directories.putIfAbsent(ext, new File(folder + File.separator + newDirName));
                     if(directories.get(ext).mkdir()) { // Check if directory was created
                         System.out.println("Created directory for ." + ext + " files.");
                     }
-                    System.out.println("Moving " + file.getName() + " to ." + ext + "/");
+                    System.out.println("Moving " + file.getName() + " to " + newDirName + "/");
                     file.renameTo(new File(directories.get(ext) + File.separator + file.getName()));
                 }
                 else if (file.isDirectory()) {
