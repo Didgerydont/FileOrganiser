@@ -1,8 +1,4 @@
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,17 +8,29 @@ public class FileIO {
         File folder = new File(directoryPath);
         File[] listOfFiles = folder.listFiles();
 
+        System.out.println("Organising directory: " + directoryPath); // Print the directory being organised
+
         if(listOfFiles != null){
             Map<String, File> directories = new HashMap<>();
             for(File file: listOfFiles){
                 if(file.isFile()){
                     String ext = getFileExtension(file);
                     directories.putIfAbsent(ext, new File(folder + File.separator + ext));
+                    if(directories.get(ext).mkdir()) { // Check if directory was created
+                        System.out.println("Created directory for ." + ext + " files.");
+                    }
+                    System.out.println("Moving " + file.getName() + " to ." + ext + "/");
                     file.renameTo(new File(directories.get(ext) + File.separator + file.getName()));
+                }
+                else if (file.isDirectory()) {
+                    System.out.println("Entering subdirectory: " + file.getName());
+                    organiseFiles(file.getPath()); // Recursively organize files in the subdirectory
                 }
             }
         }
-
+        else {
+            System.out.println("No files found in directory: " + directoryPath);
+        }
     }
 
     // Utility method to get the file extension
@@ -30,7 +38,7 @@ public class FileIO {
         String name = file.getName();
         int lastIndexOf = name.lastIndexOf(".");
         if(lastIndexOf == -1){
-            return "other";// no extension found.
+            return "other";// no extension found, place in "other" folder.
         }
         return name.substring(lastIndexOf + 1);
     }
